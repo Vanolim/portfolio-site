@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Ivan Selyutin — Unity developer. Games, experience, and recommendations."
+    />
+    <title>Ivan Selyutin — Unity Developer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <aside id="social-rail" class="social-rail" aria-label="Social links"></aside>
+
+    <header id="site-header" class="site-header">
+      <nav class="nav container" aria-label="Primary">
+        <a id="brand" class="brand" href="#hero">Your Name</a>
+
+        <div class="nav-desktop">
+          <a id="nav-home" class="nav-link" href="#hero">Home</a>
+          <a id="nav-about" class="nav-link" href="#about">About</a>
+          <a id="nav-experience" class="nav-link" href="#experience">Experience</a>
+          <a id="nav-projects" class="nav-link" href="#projects">Projects</a>
+          <a id="nav-recommendations" class="nav-link" href="#recommendations">Recommendations</a>
+          <a id="nav-resume" class="btn" href="assets/resumes/SelyutinCV.pdf" target="_blank" rel="noopener noreferrer">CV</a>
+          <div class="lang-switch" role="group" aria-label="Language">
+            <button type="button" class="lang-btn" data-lang="ru">RU</button>
+            <button type="button" class="lang-btn" data-lang="en">EN</button>
+          </div>
+        </div>
+
+        <button id="menu-open" class="menu-toggle" type="button" aria-label="Open menu">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </nav>
+    </header>
+
+    <div id="mobile-menu" class="mobile-menu" aria-hidden="true">
+      <div class="mobile-menu-top">
+        <button id="menu-close" class="menu-toggle" type="button" aria-label="Close menu">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="mobile-menu-links">
+        <a id="m-nav-home" href="#hero">Home</a>
+        <a id="m-nav-about" href="#about">About</a>
+        <a id="m-nav-experience" href="#experience">Experience</a>
+        <a id="m-nav-projects" href="#projects">Projects</a>
+        <a id="m-nav-recommendations" href="#recommendations">Recommendations</a>
+        <a id="m-nav-resume" class="btn" href="assets/resumes/SelyutinCV.pdf" target="_blank" rel="noopener noreferrer">CV</a>
+        <div class="lang-switch" role="group" aria-label="Language">
+          <button type="button" class="lang-btn" data-lang="ru">RU</button>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+        </div>
+      </div>
+    </div>
+
+    <main>
+      <section id="hero" class="hero">
+        <div class="hero-bg" aria-hidden="true"></div>
+        <div class="container hero-content">
+          <div class="hero-inner">
+            <span id="hero-kicker" class="hero-kicker"></span>
+            <h1>
+              <span id="hero-first" class="accent"></span>
+              <span id="hero-last"></span>
+            </h1>
+            <p id="hero-tagline" class="hero-tagline"></p>
+            <a id="hero-cta" class="btn btn-solid" href="#projects"></a>
+          </div>
+        </div>
+        <a class="scroll-hint" href="#projects" aria-label="Scroll to projects">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </section>
+
+      <section id="about" class="section container">
+        <h2 id="about-title" class="section-title"></h2>
+        <div id="about-content" class="about-text"></div>
+      </section>
+
+      <section id="experience" class="section container">
+        <h2 id="experience-title" class="section-title"></h2>
+        <div id="experience-timeline" class="timeline"></div>
+      </section>
+
+      <section id="projects" class="section container">
+        <h2 id="projects-title" class="section-title"></h2>
+        <div id="projects-grid" class="projects-grid"></div>
+      </section>
+
+      <section id="recommendations" class="section container">
+        <h2 id="recommendations-title" class="section-title"></h2>
+        <div id="recommendations-grid" class="reco-grid"></div>
+      </section>
+    </main>
+
+    <script type="module">
+      import(`./js/app.js?t=${Date.now()}`);
+    </script>
+  </body>
+</html>
