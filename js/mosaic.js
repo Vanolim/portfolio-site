@@ -1,4 +1,4 @@
-import { iconFiles } from "./icons.js?v=20261030e";
+import { iconFiles } from "./icons.js?v=20261030f";
 
 const ICON_BASE = "assets/icons/";
 

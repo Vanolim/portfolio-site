@@ -1,7 +1,7 @@
-import { initIconMosaic } from "./mosaic.js?v=20261030e";
+import { initIconMosaic } from "./mosaic.js?v=20261030f";
 
 const { site, copy, projects, experience, recommendations } = await import(
-  new URL(`./data.js?v=20261030e`, import.meta.url).href
+  new URL(`./data.js?v=20261030f`, import.meta.url).href
 );
 
 const ICONS = {
@@ -170,7 +170,7 @@ function renderProjects() {
   grid.innerHTML = projects
     .map((project) => {
       const links = (project.links || [])
-        .map((link) => `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${t(link.label)}</a>`)
+        .map((link) => `<a href="${t(link.url)}" target="_blank" rel="noopener noreferrer">${t(link.label)}</a>`)
         .join("");
 
       const tags = (project.tags || []).map((tag) => `<span class="tag">${tag}</span>`).join("");
