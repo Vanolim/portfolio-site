@@ -1,4 +1,4 @@
-import { iconFiles } from "./icons.js?v=6";
+import { iconFiles } from "./icons.js?v=7";
 
 const ICON_BASE = "assets/icons/";
 
@@ -85,43 +85,56 @@ async function runSlot(img, isStale) {
   }
 }
 
+function addZone(zones, el, root, padX, padY) {
+  if (!el) return;
+  const style = getComputedStyle(el);
+  if (style.display === "none" || style.visibility === "hidden") return;
+  const rect = localRect(el, root);
+  if (rect.right - rect.left < 4 || rect.bottom - rect.top < 4) return;
+  zones.push(expandRect(rect, padX, padY));
+}
+
 function buildExclusionZones(root, width, height, padX, padY) {
   const zones = [];
+  // Same pocket size as the hero title block.
+  const contentPadX = padX * 1.35;
+  const contentPadY = padY * 1.15;
 
-  // Fixed header strip.
   const header = document.getElementById("site-header");
   if (header) {
     const h = header.getBoundingClientRect().height || 72;
-    zones.push({ left: 0, top: 0, right: width, bottom: h + padY });
+    zones.push({ left: 0, top: 0, right: width, bottom: h + padY * 0.6 });
   }
 
-  // Hero copy — keep a clear pocket around the title block.
-  const heroInner = root.querySelector(".hero-inner");
-  if (heroInner) {
-    zones.push(expandRect(localRect(heroInner, root), padX * 1.4, padY * 1.2));
-  }
+  addZone(zones, root.querySelector(".hero-inner"), root, contentPadX, contentPadY);
 
-  // Content sections: clear each container box (+ pad). Icons stay in page side gutters.
-  const sectionIds = ["about", "experience", "projects", "recommendations"];
-  for (const id of sectionIds) {
-    const el = document.getElementById(id);
-    if (!el) continue;
-    zones.push(expandRect(localRect(el, root), padX, padY));
-  }
+  // About: only title + text, not the full container width.
+  addZone(zones, document.getElementById("about-title"), root, contentPadX, contentPadY);
+  addZone(zones, root.querySelector(".about-text"), root, contentPadX, contentPadY);
 
-  // About text is narrower than the container — clear it explicitly with extra pad.
-  const aboutText = root.querySelector(".about-text");
-  const aboutTitle = document.getElementById("about-title");
-  if (aboutText) zones.push(expandRect(localRect(aboutText, root), padX * 1.6, padY * 1.4));
-  if (aboutTitle) zones.push(expandRect(localRect(aboutTitle, root), padX * 1.6, padY));
+  // Experience: title + each timeline card (hero-like proximity).
+  addZone(zones, document.getElementById("experience-title"), root, contentPadX, contentPadY);
+  root.querySelectorAll(".timeline-content").forEach((el) => {
+    addZone(zones, el, root, contentPadX * 0.55, contentPadY * 0.55);
+  });
 
-  // Social rail.
+  // Projects: title + cards — leave gaps and space under the grid for icons.
+  addZone(zones, document.getElementById("projects-title"), root, contentPadX, contentPadY);
+  root.querySelectorAll(".project-card").forEach((el) => {
+    addZone(zones, el, root, contentPadX * 0.4, contentPadY * 0.4);
+  });
+
+  // Recommendations: title + cards.
+  addZone(zones, document.getElementById("recommendations-title"), root, contentPadX, contentPadY);
+  root.querySelectorAll(".reco-card").forEach((el) => {
+    addZone(zones, el, root, contentPadX * 0.55, contentPadY * 0.55);
+  });
+
   const rail = document.getElementById("social-rail");
   if (rail && getComputedStyle(rail).display !== "none") {
-    zones.push(expandRect(localRect(rail, root), padX * 0.4, padY * 0.4));
+    addZone(zones, rail, root, padX * 0.35, padY * 0.35);
   }
 
-  // Clamp to root.
   return zones.map((z) => ({
     left: Math.max(0, z.left),
     top: Math.max(0, z.top),
@@ -134,7 +147,6 @@ export function initIconMosaic(rootEl = document.querySelector("main")) {
   if (!rootEl || iconFiles.length === 0) return () => {};
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return () => {};
 
-  // Remove any leftover hero mosaic from older builds.
   document.querySelectorAll(".icon-mosaic").forEach((node) => node.remove());
 
   const layer = document.createElement("div");
@@ -165,9 +177,9 @@ export function initIconMosaic(rootEl = document.querySelector("main")) {
       const iconSize = cssNumber("--mosaic-icon-size", 28);
       const gap = cssNumber("--mosaic-gap", 56);
       const step = iconSize + gap;
-      const density = Math.min(1, Math.max(0.2, cssNumber("--mosaic-density", 0.75)));
-      const padX = cssNumber("--mosaic-content-pad-x", 40);
-      const padY = cssNumber("--mosaic-content-pad-y", 32);
+      const density = Math.min(1, Math.max(0.2, cssNumber("--mosaic-density", 0.78)));
+      const padX = cssNumber("--mosaic-content-pad-x", 36);
+      const padY = cssNumber("--mosaic-content-pad-y", 28);
       const half = iconSize / 2;
 
       const cols = Math.max(3, Math.floor(width / step));
@@ -207,10 +219,9 @@ export function initIconMosaic(rootEl = document.querySelector("main")) {
     resizeTimer = setTimeout(build, 180);
   };
 
-  // Layout settles after fonts/images; build twice so height reaches page end.
   requestAnimationFrame(() => {
     build();
-    setTimeout(build, 400);
+    setTimeout(build, 500);
   });
 
   window.addEventListener("resize", scheduleBuild);
