@@ -164,6 +164,9 @@ textarea {
   letter-spacing: -0.02em;
   color: var(--color-accent);
   white-space: nowrap;
+  cursor: default;
+  user-select: none;
+  pointer-events: none;
 }
 
 @media (max-width: 480px) {

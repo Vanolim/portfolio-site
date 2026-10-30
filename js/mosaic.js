@@ -1,4 +1,4 @@
-import { iconFiles } from "./icons.js?v=7";
+import { iconFiles } from "./icons.js?v=8";
 
 const ICON_BASE = "assets/icons/";
 
@@ -112,11 +112,9 @@ function buildExclusionZones(root, width, height, padX, padY) {
   addZone(zones, document.getElementById("about-title"), root, contentPadX, contentPadY);
   addZone(zones, root.querySelector(".about-text"), root, contentPadX, contentPadY);
 
-  // Experience: title + each timeline card (hero-like proximity).
-  addZone(zones, document.getElementById("experience-title"), root, contentPadX, contentPadY);
-  root.querySelectorAll(".timeline-content").forEach((el) => {
-    addZone(zones, el, root, contentPadX * 0.55, contentPadY * 0.55);
-  });
+  // Experience: clear the whole section column so icons stay only in side gutters
+  // (no animation between zigzag timeline cards).
+  addZone(zones, document.getElementById("experience"), root, contentPadX * 0.35, contentPadY * 0.35);
 
   // Projects: title + cards — leave gaps and space under the grid for icons.
   addZone(zones, document.getElementById("projects-title"), root, contentPadX, contentPadY);
