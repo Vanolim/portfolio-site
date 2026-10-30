@@ -30,7 +30,6 @@ export const copy = {
       lastName: "Селютин",
       tagline:
         "Более 5 лет в разработке. Создаю игры на Unity с нуля, развиваю legacy-проекты и довожу продукт от прототипа до релиза.",
-      cta: "Мои проекты",
     },
     about: {
       title: "Обо мне",
@@ -64,7 +63,6 @@ export const copy = {
       lastName: "Selyutin",
       tagline:
         "5+ years in development. I build Unity games from scratch, improve legacy projects, and take products from prototype to release.",
-      cta: "My projects",
     },
     about: {
       title: "About",
