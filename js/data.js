@@ -98,7 +98,7 @@ export const projects = [
       "assets/projects/omut/4.jpg",
     ],
     links: [
-      { label: { ru: "Ссылка", en: "Store" }, url: "https://store.steampowered.com/app/1997330/OMUT/" },
+      { label: { ru: "Steam", en: "Steam" }, url: "https://store.steampowered.com/app/1997330/OMUT/" },
     ],
   },
   {
@@ -117,7 +117,7 @@ export const projects = [
     ],
     links: [
       {
-        label: { ru: "Ссылка", en: "Store" },
+        label: { ru: "Google Play", en: "Google Play" },
         url: "https://play.google.com/store/apps/details?id=com.Sociarogames.TripleTiles&pcampaignid=web_share",
       },
     ],
@@ -138,7 +138,7 @@ export const projects = [
     ],
     links: [
       {
-        label: { ru: "Ссылка", en: "Store" },
+        label: { ru: "Google Play", en: "Google Play" },
         url: "https://play.google.com/store/apps/details?id=com.geargames.warlegends.rts.strategy.game&hl=en_US",
       },
     ],
@@ -158,7 +158,7 @@ export const projects = [
       "assets/projects/art-war/3.jpg",
     ],
     links: [
-      { label: { ru: "Ссылка", en: "Store" }, url: "https://play.google.com/store/apps/details?id=com.geargames.aow&hl=eu" },
+      { label: { ru: "Google Play", en: "Google Play" }, url: "https://play.google.com/store/apps/details?id=com.geargames.aow&hl=eu" },
     ],
   },
   {
@@ -177,7 +177,7 @@ export const projects = [
     ],
     links: [
       {
-        label: { ru: "Ссылка", en: "Store" },
+        label: { ru: "App Store", en: "App Store" },
         url: "https://apps.apple.com/ru/app/vlad-and-niki-animal-games/id6443571073",
       },
     ],
@@ -198,7 +198,7 @@ export const projects = [
     ],
     links: [
       {
-        label: { ru: "Ссылка", en: "Store" },
+        label: { ru: "Google Play", en: "Google Play" },
         url: "https://play.google.com/store/apps/details?id=com.AzonGroup.VladNiki&hl=en_US",
       },
     ],
