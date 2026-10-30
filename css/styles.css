@@ -450,9 +450,10 @@ textarea {
 .hero h1 {
   margin: 0 0 1rem;
   font-family: var(--font-display);
+  font-weight: 800;
   font-size: clamp(2.6rem, 8vw, 5rem);
   line-height: 1.02;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
 }
 
 .hero h1 .accent {
