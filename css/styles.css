@@ -467,27 +467,6 @@ textarea {
   font-weight: 400;
 }
 
-.scroll-hint {
-  position: absolute;
-  left: 50%;
-  bottom: 2rem;
-  transform: translateX(-50%);
-  z-index: 2;
-  color: var(--color-accent);
-  pointer-events: none;
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateX(-50%) translateY(0);
-  }
-  50% {
-    transform: translateX(-50%) translateY(8px);
-  }
-}
-
 .section {
   padding: 5rem 0;
 }
