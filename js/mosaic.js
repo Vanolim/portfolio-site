@@ -1,16 +1,6 @@
-import { iconFiles } from "./icons.js";
+import { iconFiles } from "./icons.js?v=6";
 
 const ICON_BASE = "assets/icons/";
-
-const CONTENT_SELECTORS = [
-  ".hero-inner",
-  "#about",
-  "#experience",
-  "#projects",
-  "#recommendations",
-  "#social-rail",
-  "#site-header .nav",
-];
 
 function cssNumber(name, fallback) {
   const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -39,13 +29,14 @@ function pickIcon(exclude) {
   return next;
 }
 
-function docRect(el) {
-  const r = el.getBoundingClientRect();
+function localRect(el, root) {
+  const er = el.getBoundingClientRect();
+  const rr = root.getBoundingClientRect();
   return {
-    left: r.left + window.scrollX,
-    top: r.top + window.scrollY,
-    right: r.right + window.scrollX,
-    bottom: r.bottom + window.scrollY,
+    left: er.left - rr.left,
+    top: er.top - rr.top,
+    right: er.right - rr.left,
+    bottom: er.bottom - rr.top,
   };
 }
 
@@ -58,39 +49,7 @@ function expandRect(rect, padX, padY = padX) {
   };
 }
 
-function collectZones(root, padX, padY) {
-  const rootRect = docRect(root);
-  const zones = [];
-
-  for (const selector of CONTENT_SELECTORS) {
-    const el = document.querySelector(selector);
-    if (!el) continue;
-    const style = getComputedStyle(el);
-    if (style.display === "none" || style.visibility === "hidden") continue;
-    const rect = docRect(el);
-    if (rect.right - rect.left < 8 || rect.bottom - rect.top < 8) continue;
-    // Extra clearance around the hero title block.
-    const extraX = selector === ".hero-inner" ? padX * 0.5 : 0;
-    const extraY = selector === ".hero-inner" ? padY * 0.75 : 0;
-    zones.push(expandRect(rect, padX + extraX, padY + extraY));
-  }
-
-  // Keep icons out of the fixed header band at the top of the page.
-  const header = document.getElementById("site-header");
-  if (header) {
-    const h = header.getBoundingClientRect().height || 72;
-    zones.push({
-      left: rootRect.left,
-      top: rootRect.top,
-      right: rootRect.right,
-      bottom: rootRect.top + h + padY,
-    });
-  }
-
-  return { rootRect, zones };
-}
-
-function overlapsZone(x, y, half, zones) {
+function overlaps(x, y, half, zones) {
   for (const z of zones) {
     if (x + half > z.left && x - half < z.right && y + half > z.top && y - half < z.bottom) {
       return true;
@@ -126,9 +85,57 @@ async function runSlot(img, isStale) {
   }
 }
 
+function buildExclusionZones(root, width, height, padX, padY) {
+  const zones = [];
+
+  // Fixed header strip.
+  const header = document.getElementById("site-header");
+  if (header) {
+    const h = header.getBoundingClientRect().height || 72;
+    zones.push({ left: 0, top: 0, right: width, bottom: h + padY });
+  }
+
+  // Hero copy — keep a clear pocket around the title block.
+  const heroInner = root.querySelector(".hero-inner");
+  if (heroInner) {
+    zones.push(expandRect(localRect(heroInner, root), padX * 1.4, padY * 1.2));
+  }
+
+  // Content sections: clear each container box (+ pad). Icons stay in page side gutters.
+  const sectionIds = ["about", "experience", "projects", "recommendations"];
+  for (const id of sectionIds) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    zones.push(expandRect(localRect(el, root), padX, padY));
+  }
+
+  // About text is narrower than the container — clear it explicitly with extra pad.
+  const aboutText = root.querySelector(".about-text");
+  const aboutTitle = document.getElementById("about-title");
+  if (aboutText) zones.push(expandRect(localRect(aboutText, root), padX * 1.6, padY * 1.4));
+  if (aboutTitle) zones.push(expandRect(localRect(aboutTitle, root), padX * 1.6, padY));
+
+  // Social rail.
+  const rail = document.getElementById("social-rail");
+  if (rail && getComputedStyle(rail).display !== "none") {
+    zones.push(expandRect(localRect(rail, root), padX * 0.4, padY * 0.4));
+  }
+
+  // Clamp to root.
+  return zones.map((z) => ({
+    left: Math.max(0, z.left),
+    top: Math.max(0, z.top),
+    right: Math.min(width, z.right),
+    bottom: Math.min(height, z.bottom),
+  }));
+}
+
 export function initIconMosaic(rootEl = document.querySelector("main")) {
   if (!rootEl || iconFiles.length === 0) return () => {};
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return () => {};
+
+  // Remove any leftover hero mosaic from older builds.
+  document.querySelectorAll(".icon-mosaic").forEach((node) => node.remove());
 
   const layer = document.createElement("div");
   layer.className = "icon-mosaic";
@@ -137,73 +144,85 @@ export function initIconMosaic(rootEl = document.querySelector("main")) {
 
   let generation = 0;
   let resizeTimer = null;
+  let building = false;
 
   const build = () => {
+    if (building) return;
+    building = true;
     generation += 1;
     const myGen = generation;
     const isStale = () => myGen !== generation;
 
-    layer.replaceChildren();
+    try {
+      layer.replaceChildren();
 
-    const width = rootEl.offsetWidth;
-    const height = rootEl.scrollHeight;
-    if (width < 40 || height < 40) return;
+      const width = rootEl.clientWidth;
+      const height = rootEl.scrollHeight;
+      if (width < 40 || height < 40) return;
 
-    layer.style.height = `${height}px`;
+      layer.style.height = `${height}px`;
 
-    const iconSize = cssNumber("--mosaic-icon-size", 28);
-    const gap = cssNumber("--mosaic-gap", 56);
-    const step = iconSize + gap;
-    const density = Math.min(1, Math.max(0.2, cssNumber("--mosaic-density", 0.7)));
-    const padX = cssNumber("--mosaic-content-pad-x", 36);
-    const padY = cssNumber("--mosaic-content-pad-y", 28);
-    const half = iconSize / 2;
+      const iconSize = cssNumber("--mosaic-icon-size", 28);
+      const gap = cssNumber("--mosaic-gap", 56);
+      const step = iconSize + gap;
+      const density = Math.min(1, Math.max(0.2, cssNumber("--mosaic-density", 0.75)));
+      const padX = cssNumber("--mosaic-content-pad-x", 40);
+      const padY = cssNumber("--mosaic-content-pad-y", 32);
+      const half = iconSize / 2;
 
-    const cols = Math.max(3, Math.floor(width / step));
-    const rows = Math.max(3, Math.floor(height / step));
-    const { rootRect, zones } = collectZones(rootEl, padX, padY);
+      const cols = Math.max(3, Math.floor(width / step));
+      const rows = Math.max(4, Math.floor(height / step));
+      const zones = buildExclusionZones(rootEl, width, height, padX, padY);
 
-    for (let r = 0; r < rows; r += 1) {
-      for (let c = 0; c < cols; c += 1) {
-        const nx = (c + 0.5) / cols;
-        const ny = (r + 0.5) / rows;
-        const x = rootRect.left + nx * width;
-        const y = rootRect.top + ny * height;
+      for (let r = 0; r < rows; r += 1) {
+        for (let c = 0; c < cols; c += 1) {
+          const x = ((c + 0.5) / cols) * width;
+          const y = ((r + 0.5) / rows) * height;
 
-        if (overlapsZone(x, y, half, zones)) continue;
-        if (Math.random() > density) continue;
+          if (overlaps(x, y, half, zones)) continue;
+          if (Math.random() > density) continue;
 
-        const cell = document.createElement("div");
-        cell.className = "icon-mosaic__cell";
-        cell.style.left = `${nx * 100}%`;
-        cell.style.top = `${ny * 100}%`;
+          const cell = document.createElement("div");
+          cell.className = "icon-mosaic__cell";
+          cell.style.left = `${(x / width) * 100}%`;
+          cell.style.top = `${(y / height) * 100}%`;
 
-        const img = document.createElement("img");
-        img.alt = "";
-        img.decoding = "async";
-        img.draggable = false;
-        cell.appendChild(img);
-        layer.appendChild(cell);
+          const img = document.createElement("img");
+          img.alt = "";
+          img.decoding = "async";
+          img.draggable = false;
+          cell.appendChild(img);
+          layer.appendChild(cell);
 
-        runSlot(img, isStale);
+          runSlot(img, isStale);
+        }
       }
+    } finally {
+      building = false;
     }
   };
 
-  build();
-
-  const onResize = () => {
+  const scheduleBuild = () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(build, 220);
+    resizeTimer = setTimeout(build, 180);
   };
-  window.addEventListener("resize", onResize);
 
-  const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
+  // Layout settles after fonts/images; build twice so height reaches page end.
+  requestAnimationFrame(() => {
+    build();
+    setTimeout(build, 400);
+  });
+
+  window.addEventListener("resize", scheduleBuild);
+  window.addEventListener("load", scheduleBuild);
+
+  const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(scheduleBuild) : null;
   ro?.observe(rootEl);
 
   return () => {
     generation += 1;
-    window.removeEventListener("resize", onResize);
+    window.removeEventListener("resize", scheduleBuild);
+    window.removeEventListener("load", scheduleBuild);
     ro?.disconnect();
     clearTimeout(resizeTimer);
     layer.remove();
