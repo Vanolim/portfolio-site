@@ -21,22 +21,20 @@
   --hero-bg-image: none;
   --hero-bg-size: cover;
   --hero-bg-position: center center;
-  --hero-bg-overlay: 0.35;
+  --hero-bg-overlay: 0;
   --hero-fade-height: 120px;
 
   --mosaic-icon-size: 28px;
-  --mosaic-gap: 48px;
+  --mosaic-gap: 56px;
   --mosaic-opacity: 0.1;
   --mosaic-fade-ms: 1600;
   --mosaic-hold-ms: 900;
   --mosaic-cooldown-min-ms: 1000;
   --mosaic-cooldown-max-ms: 2600;
   --mosaic-stagger-ms: 4500;
-  --mosaic-safe-left: 0.2;
-  --mosaic-safe-right: 0.8;
-  --mosaic-safe-top: 0.26;
-  --mosaic-safe-bottom: 0.74;
-  --mosaic-header-band: 0.12;
+  --mosaic-density: 0.7;
+  --mosaic-content-pad-x: 36px;
+  --mosaic-content-pad-y: 28px;
 
   --page-bg-image: none;
   --page-bg-overlay: 0.2;

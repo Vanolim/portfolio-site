@@ -303,20 +303,21 @@ textarea {
   place-items: center;
   text-align: center;
   padding: 7rem 0 4rem;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .hero-bg {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background-color: var(--color-bg);
+  background-color: transparent;
   background-image:
     linear-gradient(rgba(var(--overlay-rgb), var(--hero-bg-overlay)), rgba(var(--overlay-rgb), var(--hero-bg-overlay))),
     var(--hero-bg-image);
   background-size: var(--hero-bg-size);
   background-position: var(--hero-bg-position);
   background-repeat: no-repeat;
+  pointer-events: none;
 }
 
 .hero-bg::after {
@@ -328,10 +329,23 @@ textarea {
   pointer-events: none;
 }
 
+main {
+  position: relative;
+  z-index: 1;
+}
+
+main > .section,
+main > .hero {
+  position: relative;
+  z-index: 1;
+}
+
 .icon-mosaic {
   position: absolute;
-  inset: 0;
-  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  z-index: 0;
   pointer-events: none;
   overflow: hidden;
 }

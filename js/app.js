@@ -261,4 +261,4 @@ document.documentElement.lang = lang;
 document.title = lang === "ru" ? "Иван Селютин — Unity Developer" : "Ivan Selyutin — Unity Developer";
 bindUi();
 renderAll();
-initIconMosaic(document.getElementById("hero"));
+initIconMosaic(document.querySelector("main"));
