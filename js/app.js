@@ -1,7 +1,7 @@
-import { initIconMosaic } from "./mosaic.js?v=20261030d";
+import { initIconMosaic } from "./mosaic.js?v=20261030e";
 
 const { site, copy, projects, experience, recommendations } = await import(
-  new URL(`./data.js?v=20261030d`, import.meta.url).href
+  new URL(`./data.js?v=20261030e`, import.meta.url).href
 );
 
 const ICONS = {

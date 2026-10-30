@@ -123,16 +123,6 @@ textarea {
   }
 }
 
-@media (min-width: 900px) {
-  .social-rail {
-    display: flex;
-  }
-
-  .social-footer {
-    display: none;
-  }
-}
-
 .social-footer {
   display: flex;
   justify-content: center;
@@ -143,6 +133,16 @@ textarea {
 @media (max-width: 899px) {
   #recommendations.section {
     padding-bottom: 2.25rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .social-rail {
+    display: flex;
+  }
+
+  .social-footer {
+    display: none;
   }
 }
 
