@@ -1,7 +1,7 @@
-import { initIconMosaic } from "./mosaic.js?v=20261030a";
+import { initIconMosaic } from "./mosaic.js?v=20261030b";
 
 const { site, copy, projects, experience, recommendations } = await import(
-  new URL(`./data.js?v=20261030a`, import.meta.url).href
+  new URL(`./data.js?v=20261030b`, import.meta.url).href
 );
 
 const ICONS = {
@@ -210,8 +210,9 @@ function renderRecommendations() {
 
   grid.innerHTML = recommendations
     .map((item) => {
-      const link = item.url
-        ? `<a class="reco-link" href="${item.url}" target="_blank" rel="noopener noreferrer" aria-label="${openLabel}">
+      const href = item.url ? t(item.url) : "";
+      const link = href
+        ? `<a class="reco-link" href="${href}" target="_blank" rel="noopener noreferrer" aria-label="${openLabel}">
             <svg class="reco-link-icon" viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="12" cy="12" r="10" />
               <path d="M2 12h20" />

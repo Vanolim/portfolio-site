@@ -251,7 +251,10 @@ export const recommendations = [
       ru: "Иван зарекомендовал себя как ответственный, инициативный и технически сильный специалист. Он умеет оперативно предлагать решения, ясно коммуницировать свои идеи и выполнять задачи «под ключ» без потери качества. Уверены, что его опыт и профессионализм станут ценным активом для любой игровой студии.",
       en: "Ivan has proven himself to be a responsible, proactive, and technically strong specialist. He proposes solutions quickly, communicates ideas clearly, and delivers end-to-end work without sacrificing quality. We are confident his experience and professionalism would be a valuable asset to any game studio.",
     },
-    url: "assets/recommendations/madame-cyclone.pdf",
+    url: {
+      ru: "assets/recommendations/madame-cyclone.pdf",
+      en: "assets/recommendations/madame-cyclone-en.pdf",
+    },
   },
   {
     company: { ru: "Sociaro Games", en: "Sociaro Games" },
@@ -259,6 +262,9 @@ export const recommendations = [
       ru: "Иван работал Unity-разработчиком над мультиплеерным прототипом Devil's Bar — от оценки сроков и архитектуры до тестирования и качества кода. Он показал отличные навыки программирования, командную работу и коммуникацию. Талантливый и исполнительный специалист, который будет ценным дополнением для любой команды.",
       en: "Ivan worked as a Unity developer on the Devil's Bar multiplayer prototype — from estimation and architecture to testing and code quality. He demonstrated strong programming skills, teamwork, and communication. A talented, diligent specialist who would be a valuable addition to any team.",
     },
-    url: "assets/recommendations/sociaro.pdf",
+    url: {
+      ru: "assets/recommendations/sociaro.pdf",
+      en: "assets/recommendations/sociaro-en.pdf",
+    },
   },
 ];
