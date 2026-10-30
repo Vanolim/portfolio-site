@@ -1,7 +1,7 @@
-import { initIconMosaic } from "./mosaic.js?v=20261030c";
+import { initIconMosaic } from "./mosaic.js?v=20261030d";
 
 const { site, copy, projects, experience, recommendations } = await import(
-  new URL(`./data.js?v=20261030c`, import.meta.url).href
+  new URL(`./data.js?v=20261030d`, import.meta.url).href
 );
 
 const ICONS = {
@@ -27,17 +27,54 @@ function t(value) {
   return value[lang] ?? value.ru ?? value.en ?? "";
 }
 
+function normalizeLang(value) {
+  const raw = String(value || "").toLowerCase();
+  if (raw === "ru") return "ru";
+  // "eu" accepted as a friendly alias for English
+  if (raw === "en" || raw === "eu" || raw === "eng") return "en";
+  return null;
+}
+
+function langFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const fromQuery = normalizeLang(params.get("lang"));
+  if (fromQuery) return fromQuery;
+
+  // Support /portfolio-site/ru/ or /portfolio-site/en/
+  const parts = window.location.pathname.split("/").filter(Boolean);
+  const leaf = parts[parts.length - 1];
+  return normalizeLang(leaf);
+}
+
+function syncLangInUrl(next) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("lang", next);
+  history.replaceState({}, "", url);
+}
+
 function setLang(next) {
-  lang = next;
-  localStorage.setItem("portfolio-lang", next);
-  document.documentElement.lang = next;
-  document.title = next === "ru" ? "Иван Селютин — Unity Developer" : "Ivan Selyutin — Unity Developer";
+  const normalized = normalizeLang(next) || site.defaultLang || "ru";
+  lang = normalized;
+  localStorage.setItem("portfolio-lang", normalized);
+  document.documentElement.lang = normalized;
+  document.title =
+    normalized === "ru" ? "Иван Селютин — Unity Developer" : "Ivan Selyutin — Unity Developer";
+  syncLangInUrl(normalized);
   renderAll();
 }
 
 function initLang() {
+  const fromUrl = langFromUrl();
+  if (fromUrl) {
+    lang = fromUrl;
+    localStorage.setItem("portfolio-lang", fromUrl);
+    syncLangInUrl(fromUrl);
+    return;
+  }
+
   const saved = localStorage.getItem("portfolio-lang");
-  if (saved === "ru" || saved === "en") lang = saved;
+  const normalized = normalizeLang(saved);
+  if (normalized) lang = normalized;
 }
 
 function renderSocials() {
