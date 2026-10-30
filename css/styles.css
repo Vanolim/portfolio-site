@@ -127,10 +127,74 @@ textarea {
   .social-rail {
     display: flex;
   }
+
+  .social-footer {
+    display: none;
+  }
+}
+
+.social-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 0.5rem;
+  padding-bottom: 2.25rem;
+}
+
+@media (max-width: 899px) {
+  #recommendations.section {
+    padding-bottom: 2.25rem;
+  }
+}
+
+.social-bar {
+  --social-cycle: 12s;
+  --social-step: 1.6s;
+
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 1.05rem 1.35rem;
+  background: color-mix(in srgb, var(--color-surface) 96%, var(--color-accent) 4%);
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 18%, transparent),
+    0 8px 20px color-mix(in srgb, var(--color-accent) 10%, transparent),
+    var(--shadow);
+}
+
+.social-bar a {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.social-bar a:hover {
+  color: var(--color-accent);
+  transform: translateY(-3px);
+}
+
+.social-bar a:hover .icon {
+  animation: none;
+  color: var(--color-accent);
+  filter: none;
+}
+
+.social-bar .icon {
+  width: 2rem;
+  height: 2rem;
+  color: inherit;
+  animation: social-icon-wave var(--social-cycle) ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * var(--social-step));
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .social-rail .icon {
+  .social-rail .icon,
+  .social-bar .icon {
     animation: none;
   }
 }

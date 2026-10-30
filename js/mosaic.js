@@ -1,4 +1,4 @@
-import { iconFiles } from "./icons.js?v=20261030b";
+import { iconFiles } from "./icons.js?v=20261030c";
 
 const ICON_BASE = "assets/icons/";
 
@@ -131,6 +131,14 @@ function buildExclusionZones(root, width, height, padX, padY) {
   const rail = document.getElementById("social-rail");
   if (rail && getComputedStyle(rail).display !== "none") {
     addZone(zones, rail, root, padX * 0.35, padY * 0.35);
+  }
+
+  const socialBar = document.querySelector(".social-bar");
+  if (socialBar && getComputedStyle(socialBar).display !== "none") {
+    const footer = document.getElementById("social-footer");
+    if (footer && getComputedStyle(footer).display !== "none") {
+      addZone(zones, socialBar, root, padX * 0.5, padY * 0.5);
+    }
   }
 
   return zones.map((z) => ({

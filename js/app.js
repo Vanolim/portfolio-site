@@ -1,7 +1,7 @@
-import { initIconMosaic } from "./mosaic.js?v=20261030b";
+import { initIconMosaic } from "./mosaic.js?v=20261030c";
 
 const { site, copy, projects, experience, recommendations } = await import(
-  new URL(`./data.js?v=20261030b`, import.meta.url).href
+  new URL(`./data.js?v=20261030c`, import.meta.url).href
 );
 
 const ICONS = {
@@ -49,6 +49,8 @@ function renderSocials() {
     .join("");
 
   $("#social-rail").innerHTML = html;
+  const bar = $("#social-bar");
+  if (bar) bar.innerHTML = html;
 }
 
 function renderStaticCopy() {
