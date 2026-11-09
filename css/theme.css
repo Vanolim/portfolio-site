@@ -31,7 +31,7 @@
   --mosaic-hold-ms: 900;
   --mosaic-cooldown-min-ms: 1000;
   --mosaic-cooldown-max-ms: 2600;
-  --mosaic-stagger-ms: 0;
+  --mosaic-stagger-ms: 4500;
   --mosaic-density: 0.78;
   --mosaic-content-pad-x: 36px;
   --mosaic-content-pad-y: 28px;
