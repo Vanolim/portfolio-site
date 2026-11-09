@@ -6,7 +6,7 @@ export const site = {
     en: "assets/resumes/SelyutinCV.pdf",
   },
   socials: [
-    { id: "mail", href: "mailto:legavana@gmail.com", label: "Email" },
+    { id: "mail", href: "mailto:ivansel.job@outlook.com", label: "Email" },
     { id: "telegram", href: "https://t.me/Vanolim", label: "Telegram" },
     { id: "linkedin", href: "https://www.linkedin.com/in/vanolim/", label: "LinkedIn" },
     { id: "github", href: "https://github.com/Vanolim", label: "GitHub" },
