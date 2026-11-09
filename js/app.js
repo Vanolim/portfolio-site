@@ -1,8 +1,7 @@
-import { initIconMosaic } from "./mosaic.js?v=20261030f";
+import { initIconMosaic } from "./mosaic.js?v=20261109a";
 
 const { site, copy, projects, experience, recommendations } = await import(
-  new URL(`./data.js?v=20261030f`, import.meta.url).href
-);
+  new URL(`./data.js?v=20261109a);
 
 const ICONS = {
   mail: `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>`,

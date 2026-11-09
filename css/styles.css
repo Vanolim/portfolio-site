@@ -218,7 +218,14 @@ textarea {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1rem 0;
+  width: 100%;
+  padding: 1rem 1.25rem;
+}
+
+@media (max-width: 480px) {
+  .nav {
+    padding-inline: 0.75rem;
+  }
 }
 
 .brand {
