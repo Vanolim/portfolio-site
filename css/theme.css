@@ -25,14 +25,15 @@
   --hero-fade-height: 120px;
 
   --mosaic-icon-size: 28px;
-  --mosaic-gap: 56px;
+  --mosaic-gap: 72px;
   --mosaic-opacity: 0.144;
   --mosaic-fade-ms: 1600;
   --mosaic-hold-ms: 900;
   --mosaic-cooldown-min-ms: 1000;
   --mosaic-cooldown-max-ms: 2600;
   --mosaic-stagger-ms: 9000;
-  --mosaic-density: 0.78;
+  --mosaic-density: 0.45;
+  --mosaic-max-cells: 48;
   --mosaic-content-pad-x: 36px;
   --mosaic-content-pad-y: 28px;
 

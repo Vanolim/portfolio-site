@@ -1,4 +1,4 @@
-import { iconFiles } from "./icons.js?v=20261109d";
+import { iconFiles } from "./icons.js?v=20261109e";
 
 const ICON_BASE = "assets/icons/";
 
@@ -58,41 +58,6 @@ function overlaps(x, y, half, zones) {
   return false;
 }
 
-async function runSlot(img, isStale) {
-  const cell = img.parentElement;
-  let last = null;
-  let first = true;
-
-  // Spread the first appearance across a wide random window so icons don't pop in as one wave.
-  await wait(rand(0, cssNumber("--mosaic-stagger-ms", 8000)));
-
-  while (!isStale() && img.isConnected) {
-    const file = pickIcon(last);
-    last = file;
-    if (!file) break;
-
-    cell.classList.remove("is-on");
-    img.src = `${ICON_BASE}${file}`;
-
-    // Extra cooldown only between later cycles — not before the first fade-in.
-    if (!first) {
-      await wait(
-        rand(cssNumber("--mosaic-cooldown-min-ms", 900), cssNumber("--mosaic-cooldown-max-ms", 2200))
-      );
-      if (isStale()) break;
-    } else {
-      first = false;
-    }
-
-    cell.classList.add("is-on");
-    await wait(cssNumber("--mosaic-fade-ms", 1600) + cssNumber("--mosaic-hold-ms", 900));
-    if (isStale()) break;
-
-    cell.classList.remove("is-on");
-    await wait(cssNumber("--mosaic-fade-ms", 1600));
-  }
-}
-
 function addZone(zones, el, root, padX, padY) {
   if (!el) return;
   const style = getComputedStyle(el);
@@ -104,7 +69,6 @@ function addZone(zones, el, root, padX, padY) {
 
 function buildExclusionZones(root, width, height, padX, padY) {
   const zones = [];
-  // Same pocket size as the hero title block.
   const contentPadX = padX * 1.35;
   const contentPadY = padY * 1.15;
 
@@ -115,22 +79,13 @@ function buildExclusionZones(root, width, height, padX, padY) {
   }
 
   addZone(zones, root.querySelector(".hero-inner"), root, contentPadX, contentPadY);
-
-  // About: only title + text, not the full container width.
   addZone(zones, document.getElementById("about-title"), root, contentPadX, contentPadY);
   addZone(zones, root.querySelector(".about-text"), root, contentPadX, contentPadY);
-
-  // Experience: clear the whole section column so icons stay only in side gutters
-  // (no animation between zigzag timeline cards).
   addZone(zones, document.getElementById("experience"), root, contentPadX * 0.35, contentPadY * 0.35);
-
-  // Projects: title + cards — leave gaps and space under the grid for icons.
   addZone(zones, document.getElementById("projects-title"), root, contentPadX, contentPadY);
   root.querySelectorAll(".project-card").forEach((el) => {
     addZone(zones, el, root, contentPadX * 0.4, contentPadY * 0.4);
   });
-
-  // Recommendations: title + cards.
   addZone(zones, document.getElementById("recommendations-title"), root, contentPadX, contentPadY);
   root.querySelectorAll(".reco-card").forEach((el) => {
     addZone(zones, el, root, contentPadX * 0.55, contentPadY * 0.55);
@@ -157,6 +112,56 @@ function buildExclusionZones(root, width, height, padX, padY) {
   }));
 }
 
+async function runSlot(img, isStale, isActive) {
+  const cell = img.parentElement;
+  let last = null;
+  let first = true;
+
+  await wait(rand(0, cssNumber("--mosaic-stagger-ms", 8000)));
+
+  while (!isStale() && img.isConnected) {
+    // Freeze off-screen / while scrolling to keep page scroll smooth.
+    while (!isStale() && img.isConnected && !isActive()) {
+      cell.classList.remove("is-on");
+      await wait(250);
+    }
+    if (isStale() || !img.isConnected) break;
+
+    const file = pickIcon(last);
+    last = file;
+    if (!file) break;
+
+    cell.classList.remove("is-on");
+    // Only swap source when inactive to avoid decode spikes mid-fade.
+    if (img.dataset.file !== file) {
+      img.dataset.file = file;
+      img.src = `${ICON_BASE}${file}`;
+    }
+
+    if (!first) {
+      await wait(
+        rand(cssNumber("--mosaic-cooldown-min-ms", 900), cssNumber("--mosaic-cooldown-max-ms", 2200))
+      );
+      if (isStale()) break;
+      while (!isStale() && img.isConnected && !isActive()) {
+        await wait(250);
+      }
+      if (isStale() || !img.isConnected) break;
+    } else {
+      first = false;
+    }
+
+    if (!isActive()) continue;
+
+    cell.classList.add("is-on");
+    await wait(cssNumber("--mosaic-fade-ms", 1600) + cssNumber("--mosaic-hold-ms", 900));
+    if (isStale()) break;
+
+    cell.classList.remove("is-on");
+    await wait(cssNumber("--mosaic-fade-ms", 1600));
+  }
+}
+
 export function initIconMosaic(rootEl = document.querySelector("main")) {
   if (!rootEl || iconFiles.length === 0) return () => {};
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return () => {};
@@ -170,9 +175,28 @@ export function initIconMosaic(rootEl = document.querySelector("main")) {
 
   let generation = 0;
   let resizeTimer = null;
+  let scrollTimer = null;
   let building = false;
+  let scrolling = false;
   let lastW = 0;
   let lastH = 0;
+  const visibleCells = new Set();
+
+  const io =
+    typeof IntersectionObserver !== "undefined"
+      ? new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) visibleCells.add(entry.target);
+              else {
+                visibleCells.delete(entry.target);
+                entry.target.classList.remove("is-on");
+              }
+            }
+          },
+          { root: null, rootMargin: "120px 0px", threshold: 0 }
+        )
+      : null;
 
   const build = (force = false) => {
     if (building) return;
@@ -181,7 +205,6 @@ export function initIconMosaic(rootEl = document.querySelector("main")) {
     const height = rootEl.scrollHeight;
     if (width < 40 || height < 40) return;
 
-    // Avoid restarting all timers when layout only jitters (was syncing icons into one wave).
     if (!force && Math.abs(width - lastW) < 8 && Math.abs(height - lastH) < 24) {
       return;
     }
@@ -192,15 +215,17 @@ export function initIconMosaic(rootEl = document.querySelector("main")) {
     const isStale = () => myGen !== generation;
     lastW = width;
     lastH = height;
+    visibleCells.clear();
 
     try {
       layer.replaceChildren();
       layer.style.height = `${height}px`;
 
       const iconSize = cssNumber("--mosaic-icon-size", 28);
-      const gap = cssNumber("--mosaic-gap", 56);
+      const gap = cssNumber("--mosaic-gap", 72);
       const step = iconSize + gap;
-      const density = Math.min(1, Math.max(0.2, cssNumber("--mosaic-density", 0.78)));
+      const density = Math.min(1, Math.max(0.15, cssNumber("--mosaic-density", 0.45)));
+      const maxCells = Math.max(16, Math.floor(cssNumber("--mosaic-max-cells", 48)));
       const padX = cssNumber("--mosaic-content-pad-x", 36);
       const padY = cssNumber("--mosaic-content-pad-y", 28);
       const half = iconSize / 2;
@@ -209,28 +234,40 @@ export function initIconMosaic(rootEl = document.querySelector("main")) {
       const rows = Math.max(4, Math.floor(height / step));
       const zones = buildExclusionZones(rootEl, width, height, padX, padY);
 
+      const candidates = [];
       for (let r = 0; r < rows; r += 1) {
         for (let c = 0; c < cols; c += 1) {
           const x = ((c + 0.5) / cols) * width;
           const y = ((r + 0.5) / rows) * height;
-
           if (overlaps(x, y, half, zones)) continue;
           if (Math.random() > density) continue;
-
-          const cell = document.createElement("div");
-          cell.className = "icon-mosaic__cell";
-          cell.style.left = `${(x / width) * 100}%`;
-          cell.style.top = `${(y / height) * 100}%`;
-
-          const img = document.createElement("img");
-          img.alt = "";
-          img.decoding = "async";
-          img.draggable = false;
-          cell.appendChild(img);
-          layer.appendChild(cell);
-
-          runSlot(img, isStale);
+          candidates.push({ x, y });
         }
+      }
+
+      // Cap total animated nodes — full-page grids were the main scroll hitch.
+      for (let i = candidates.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+      }
+      const picked = candidates.slice(0, maxCells);
+
+      for (const { x, y } of picked) {
+        const cell = document.createElement("div");
+        cell.className = "icon-mosaic__cell";
+        cell.style.left = `${(x / width) * 100}%`;
+        cell.style.top = `${(y / height) * 100}%`;
+
+        const img = document.createElement("img");
+        img.alt = "";
+        img.decoding = "async";
+        img.loading = "lazy";
+        img.draggable = false;
+        cell.appendChild(img);
+        layer.appendChild(cell);
+
+        io?.observe(cell);
+        runSlot(img, isStale, () => !scrolling && (io ? visibleCells.has(cell) : true));
       }
     } finally {
       building = false;
@@ -239,13 +276,24 @@ export function initIconMosaic(rootEl = document.querySelector("main")) {
 
   const scheduleBuild = () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => build(false), 180);
+    resizeTimer = setTimeout(() => build(false), 220);
+  };
+
+  const onScroll = () => {
+    scrolling = true;
+    layer.classList.add("is-scrolling");
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      scrolling = false;
+      layer.classList.remove("is-scrolling");
+    }, 140);
   };
 
   requestAnimationFrame(() => build(true));
 
   window.addEventListener("resize", scheduleBuild);
   window.addEventListener("load", () => build(true));
+  window.addEventListener("scroll", onScroll, { passive: true });
 
   const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(scheduleBuild) : null;
   ro?.observe(rootEl);
@@ -254,8 +302,11 @@ export function initIconMosaic(rootEl = document.querySelector("main")) {
     generation += 1;
     window.removeEventListener("resize", scheduleBuild);
     window.removeEventListener("load", scheduleBuild);
+    window.removeEventListener("scroll", onScroll);
     ro?.disconnect();
+    io?.disconnect();
     clearTimeout(resizeTimer);
+    clearTimeout(scrollTimer);
     layer.remove();
   };
 }

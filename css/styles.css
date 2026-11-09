@@ -422,6 +422,11 @@ main > .hero {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
+  contain: layout paint;
+}
+
+.icon-mosaic.is-scrolling .icon-mosaic__cell img {
+  transition: none;
 }
 
 .icon-mosaic__cell {
@@ -429,6 +434,9 @@ main > .hero {
   width: var(--mosaic-icon-size);
   height: var(--mosaic-icon-size);
   transform: translate(-50%, -50%);
+  contain: layout paint size;
+  content-visibility: auto;
+  contain-intrinsic-size: var(--mosaic-icon-size) var(--mosaic-icon-size);
 }
 
 .icon-mosaic__cell img {
@@ -439,6 +447,7 @@ main > .hero {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   transition: opacity calc(var(--mosaic-fade-ms) * 1ms) ease;
+  will-change: opacity;
 }
 
 .icon-mosaic__cell.is-on img {
@@ -616,6 +625,8 @@ main > .hero {
   overflow: hidden;
   box-shadow: var(--shadow);
   transition: transform 0.25s ease, border-color 0.25s ease;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 520px;
 }
 
 .project-card:hover {
@@ -660,12 +671,12 @@ main > .hero {
 
 .carousel-slide--contain .carousel-slide__backdrop {
   position: absolute;
-  inset: -24px;
+  inset: -16px;
   background-position: center;
   background-size: cover;
-  filter: blur(22px);
-  opacity: 0.22;
-  transform: scale(1.08);
+  filter: blur(8px);
+  opacity: 0.18;
+  transform: scale(1.05);
 }
 
 .carousel-slide--contain::after {
