@@ -1,4 +1,4 @@
-import { iconFiles } from "./icons.js?v=20261109c";
+import { iconFiles } from "./icons.js?v=20261109d";
 
 const ICON_BASE = "assets/icons/";
 
@@ -61,7 +61,10 @@ function overlaps(x, y, half, zones) {
 async function runSlot(img, isStale) {
   const cell = img.parentElement;
   let last = null;
-  await wait(rand(0, cssNumber("--mosaic-stagger-ms", 4000)));
+  let first = true;
+
+  // Spread the first appearance across a wide random window so icons don't pop in as one wave.
+  await wait(rand(0, cssNumber("--mosaic-stagger-ms", 8000)));
 
   while (!isStale() && img.isConnected) {
     const file = pickIcon(last);
@@ -71,10 +74,15 @@ async function runSlot(img, isStale) {
     cell.classList.remove("is-on");
     img.src = `${ICON_BASE}${file}`;
 
-    await wait(
-      rand(cssNumber("--mosaic-cooldown-min-ms", 900), cssNumber("--mosaic-cooldown-max-ms", 2200))
-    );
-    if (isStale()) break;
+    // Extra cooldown only between later cycles — not before the first fade-in.
+    if (!first) {
+      await wait(
+        rand(cssNumber("--mosaic-cooldown-min-ms", 900), cssNumber("--mosaic-cooldown-max-ms", 2200))
+      );
+      if (isStale()) break;
+    } else {
+      first = false;
+    }
 
     cell.classList.add("is-on");
     await wait(cssNumber("--mosaic-fade-ms", 1600) + cssNumber("--mosaic-hold-ms", 900));
@@ -163,21 +171,30 @@ export function initIconMosaic(rootEl = document.querySelector("main")) {
   let generation = 0;
   let resizeTimer = null;
   let building = false;
+  let lastW = 0;
+  let lastH = 0;
 
-  const build = () => {
+  const build = (force = false) => {
     if (building) return;
+
+    const width = rootEl.clientWidth;
+    const height = rootEl.scrollHeight;
+    if (width < 40 || height < 40) return;
+
+    // Avoid restarting all timers when layout only jitters (was syncing icons into one wave).
+    if (!force && Math.abs(width - lastW) < 8 && Math.abs(height - lastH) < 24) {
+      return;
+    }
+
     building = true;
     generation += 1;
     const myGen = generation;
     const isStale = () => myGen !== generation;
+    lastW = width;
+    lastH = height;
 
     try {
       layer.replaceChildren();
-
-      const width = rootEl.clientWidth;
-      const height = rootEl.scrollHeight;
-      if (width < 40 || height < 40) return;
-
       layer.style.height = `${height}px`;
 
       const iconSize = cssNumber("--mosaic-icon-size", 28);
@@ -222,16 +239,13 @@ export function initIconMosaic(rootEl = document.querySelector("main")) {
 
   const scheduleBuild = () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(build, 180);
+    resizeTimer = setTimeout(() => build(false), 180);
   };
 
-  requestAnimationFrame(() => {
-    build();
-    setTimeout(build, 500);
-  });
+  requestAnimationFrame(() => build(true));
 
   window.addEventListener("resize", scheduleBuild);
-  window.addEventListener("load", scheduleBuild);
+  window.addEventListener("load", () => build(true));
 
   const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(scheduleBuild) : null;
   ro?.observe(rootEl);
