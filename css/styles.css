@@ -219,12 +219,13 @@ textarea {
   justify-content: space-between;
   gap: 1rem;
   width: 100%;
-  padding: 1rem 1.25rem;
+  /* Left matches previous content container inset; right stays near the screen edge */
+  padding: 1rem 1.25rem 1rem max(1.25rem, calc((100% - 1120px) / 2));
 }
 
 @media (max-width: 480px) {
   .nav {
-    padding-inline: 0.75rem;
+    padding: 1rem 0.75rem;
   }
 }
 

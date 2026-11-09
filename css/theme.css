@@ -26,12 +26,12 @@
 
   --mosaic-icon-size: 28px;
   --mosaic-gap: 56px;
-  --mosaic-opacity: 0.12;
+  --mosaic-opacity: 0.144;
   --mosaic-fade-ms: 1600;
   --mosaic-hold-ms: 900;
   --mosaic-cooldown-min-ms: 1000;
   --mosaic-cooldown-max-ms: 2600;
-  --mosaic-stagger-ms: 4500;
+  --mosaic-stagger-ms: 0;
   --mosaic-density: 0.78;
   --mosaic-content-pad-x: 36px;
   --mosaic-content-pad-y: 28px;

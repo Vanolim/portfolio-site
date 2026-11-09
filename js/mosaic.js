@@ -1,4 +1,4 @@
-import { iconFiles } from "./icons.js?v=20261109a";
+import { iconFiles } from "./icons.js?v=20261109b";
 
 const ICON_BASE = "assets/icons/";
 
@@ -61,7 +61,7 @@ function overlaps(x, y, half, zones) {
 async function runSlot(img, isStale) {
   const cell = img.parentElement;
   let last = null;
-  await wait(rand(0, cssNumber("--mosaic-stagger-ms", 4000)));
+  let first = true;
 
   while (!isStale() && img.isConnected) {
     const file = pickIcon(last);
@@ -71,10 +71,15 @@ async function runSlot(img, isStale) {
     cell.classList.remove("is-on");
     img.src = `${ICON_BASE}${file}`;
 
-    await wait(
-      rand(cssNumber("--mosaic-cooldown-min-ms", 900), cssNumber("--mosaic-cooldown-max-ms", 2200))
-    );
-    if (isStale()) break;
+    // First icons appear immediately; later cycles keep a staggered cooldown.
+    if (!first) {
+      await wait(
+        rand(cssNumber("--mosaic-cooldown-min-ms", 900), cssNumber("--mosaic-cooldown-max-ms", 2200))
+      );
+      if (isStale()) break;
+    } else {
+      first = false;
+    }
 
     cell.classList.add("is-on");
     await wait(cssNumber("--mosaic-fade-ms", 1600) + cssNumber("--mosaic-hold-ms", 900));
